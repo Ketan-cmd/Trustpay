@@ -1,0 +1,15 @@
+# Files to ignore during Vercel deployment
+node_modules
+.env.local
+.env.development
+.env
+docker-compose.yml
+Dockerfile*
+server/
+fraud-service/
+requirements.txt
+postman_collection.json
+.bolt/
+*.py
+__pycache__/
+*.pyc
