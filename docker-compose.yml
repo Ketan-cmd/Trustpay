@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - VITE_API_URL=http://localhost:3001/api
+    volumes:
+      - .:/app
+      - /app/node_modules
+    depends_on:
+      - api
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_ENV=development
+      - MONGODB_URI=mongodb://mongo:27017/boltfinance
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=your-super-secret-jwt-key-here
+      - BOLT_API_KEY=your-bolt-api-key
+      - TWILIO_ACCOUNT_SID=your-twilio-sid
+      - TWILIO_AUTH_TOKEN=your-twilio-token
+    depends_on:
+      - mongo
+      - redis
+      - fraud-service
+
+  fraud-service:
+    build:
+      context: .
+      dockerfile: Dockerfile.fraud
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=development
+      - REDIS_URL=redis://redis:6379
+    depends_on:
+      - redis
+
+  mongo:
+    image: mongo:5.0
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+volumes:
+  mongo_data:
+  redis_data:
